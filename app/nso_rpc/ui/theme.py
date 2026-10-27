@@ -44,8 +44,9 @@ QPushButton#primary:hover {{ background: #ff1a2b; }}
 QPushButton#primary:disabled {{ background: #5c1a1f; color: #b5b5b5; }}
 QPushButton#link {{ background: transparent; color: {MUTED}; text-decoration: underline; padding: 4px; }}
 QPushButton#link:hover {{ color: {TEXT}; }}
-QLineEdit, QSpinBox, QPlainTextEdit {{ background: #111214; border: 1px solid #3f4147; border-radius: 6px;
-                                       padding: 6px; selection-background-color: {ACCENT}; }}
+QLineEdit, QSpinBox, QComboBox, QPlainTextEdit {{ background: #111214; border: 1px solid #3f4147;
+                                       border-radius: 6px; padding: 6px; selection-background-color: {ACCENT}; }}
+QComboBox QAbstractItemView {{ background: #111214; border: 1px solid #3f4147; }}
 QCheckBox {{ spacing: 8px; }}
 QScrollArea {{ border: none; background: transparent; }}
 QScrollArea > QWidget > QWidget {{ background: transparent; }}

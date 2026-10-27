@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from typing import Any, Callable
 
 from .config import Config
+from .i18n import tr
 from .runtime import CREATE_NO_WINDOW, Runtime, env
 
 DEFAULT_TIMEOUT = 120
@@ -31,7 +32,7 @@ def parse_json_output(stdout: str) -> Any:
             return json.loads(stdout[min(starts):])
         except ValueError:
             pass
-    raise NxapiError("Respuesta inesperada de nxapi (no es JSON).")
+    raise NxapiError(tr("Respuesta inesperada de nxapi (no es JSON)."))
 
 
 @dataclass(frozen=True)
@@ -59,8 +60,8 @@ class Friend:
     @property
     def status_text(self) -> str:
         if self.game_name and self.online:
-            return f"Jugando {self.game_name}"
-        return "En línea" if self.online else "Desconectado"
+            return tr("Jugando {game}", game=self.game_name)
+        return tr("En línea") if self.online else tr("Desconectado")
 
 
 def normalize_friend_id(raw: str) -> str:
@@ -71,7 +72,7 @@ def normalize_friend_id(raw: str) -> str:
         return f"{digits[0:4]}-{digits[4:8]}-{digits[8:12]}"
     if re.fullmatch(r"[0-9a-f]{16}", text):
         return text
-    raise NxapiError("Código no válido: usa el código de amigo (SW-1234-5678-9012) o el NSA ID.")
+    raise NxapiError(tr("Código no válido: usa el código de amigo (SW-1234-5678-9012) o el NSA ID."))
 
 
 def _last_error_line(stderr: str) -> str:
@@ -79,7 +80,7 @@ def _last_error_line(stderr: str) -> str:
     for line in reversed(lines):
         if "error" in line.lower():
             return line
-    return lines[-1] if lines else "error desconocido"
+    return lines[-1] if lines else tr("error desconocido")
 
 
 class NxapiClient:
@@ -94,9 +95,9 @@ class NxapiClient:
                 timeout=timeout, creationflags=CREATE_NO_WINDOW,
             )
         except subprocess.TimeoutExpired:
-            raise NxapiError("nxapi tardó demasiado en responder (¿servidor de tokens caído?).")
+            raise NxapiError(tr("nxapi tardó demasiado en responder (¿servidor de tokens caído?)."))
         except OSError as e:
-            raise NxapiError(f"No se pudo ejecutar nxapi: {e}")
+            raise NxapiError(tr("No se pudo ejecutar nxapi: {error}", error=e))
         if proc.returncode != 0:
             # bridge.mjs reporta {"error": ...} en stdout; la CLI de nxapi escribe el error en stderr.
             try:
@@ -145,7 +146,7 @@ class NxapiClient:
         for line in proc.stdout:
             on_line(line.rstrip())
         if proc.wait() != 0:
-            raise NxapiError(f"npm install falló (código {proc.returncode}).")
+            raise NxapiError(tr("npm install falló (código {code}).", code=proc.returncode))
 
     def presence_args(self, nsaid: str, cfg: Config) -> list[str]:
         args = [str(self.rt.node), str(self.rt.nxapi_bin), "nso", "presence",

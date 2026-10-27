@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
 )
 
 from .. import paths
+from ..i18n import tr
 from ..nxapi import Friend, NxapiClient
 from . import theme
 from .workers import run_async
@@ -48,7 +49,7 @@ class FriendCard(QFrame):
         name.setObjectName("h2")
         color = theme.STATE_COLORS[theme.State.CONNECTED] if friend.online else theme.MUTED
         status = QLabel(f'<span style="color:{color}">●</span> {friend.status_text}')
-        nsa = QLabel(f"NSA ID {friend.nsa_id}" + ("  ★ favorito" if friend.is_favorite else ""))
+        nsa = QLabel(f"NSA ID {friend.nsa_id}" + (tr("  ★ favorito") if friend.is_favorite else ""))
         nsa.setObjectName("muted")
         nsa.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
 
@@ -58,7 +59,7 @@ class FriendCard(QFrame):
         info.addWidget(status)
         info.addWidget(nsa)
 
-        self.button = QPushButton("Mostrando en Discord" if selected else "Mostrar en Discord")
+        self.button = QPushButton(tr("Mostrando en Discord") if selected else tr("Mostrar en Discord"))
         self.button.setObjectName("primary" if not selected else "")
         self.button.setEnabled(not selected)
         self.button.clicked.connect(lambda: self.chosen.emit(self.friend))
@@ -92,11 +93,11 @@ class FriendsView(QWidget):
         self.selected_nsaid = selected_nsaid
         self.friends: list[Friend] = []
 
-        self.help = QLabel(help_text or "Elige la cuenta cuya actividad quieres mostrar en Discord "
-                                        "(normalmente tu cuenta principal).")
+        self.help = QLabel(help_text or tr("Elige la cuenta cuya actividad quieres mostrar en Discord "
+                                           "(normalmente tu cuenta principal)."))
         self.help.setWordWrap(True)
         self.help.setObjectName("muted")
-        self.reload_btn = QPushButton("Recargar")
+        self.reload_btn = QPushButton(tr("Recargar"))
         self.reload_btn.clicked.connect(self.reload)
         top = QHBoxLayout()
         top.addWidget(self.help, 1)
@@ -130,23 +131,23 @@ class FriendsView(QWidget):
 
     def reload(self) -> None:
         if self.client is None:
-            self._show_message("No se encontró el motor nxapi.", "error")
+            self._show_message(tr("No se encontró el motor nxapi."), "error")
             return
         self.reload_btn.setEnabled(False)
-        self._show_message("Cargando amigos… (puede tardar unos segundos la primera vez)")
+        self._show_message(tr("Cargando amigos… (puede tardar unos segundos la primera vez)"))
         run_async(self.client.friends, self._on_loaded, self._on_error)
 
     def _on_error(self, e: Exception) -> None:
         self.reload_btn.setEnabled(True)
-        self._show_message(f"No se pudo cargar la lista: {e}", "error")
+        self._show_message(tr("No se pudo cargar la lista: {error}", error=e), "error")
 
     def _on_loaded(self, friends: list[Friend]) -> None:
         self.reload_btn.setEnabled(True)
         self.friends = sorted(friends, key=lambda f: (not f.online, not f.is_favorite, f.name.lower()))
         if not self.friends:
             self._show_message(
-                "La cuenta-bot no tiene amigos todavía. Envía la solicitud desde la bot (o desde tu "
-                "consola) y asegúrate de que esté aceptada en ambos lados; luego pulsa Recargar.", "warn")
+                tr("La cuenta-bot no tiene amigos todavía. Envía la solicitud desde la bot (o desde tu "
+                   "consola) y asegúrate de que esté aceptada en ambos lados; luego pulsa Recargar."), "warn")
         else:
             self._show_message("")
         self._render()

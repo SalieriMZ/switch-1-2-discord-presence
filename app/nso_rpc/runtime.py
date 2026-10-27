@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from . import paths
+from .i18n import tr
 
 USER_AGENT = "nso-discord-rpc/1.0"
 DEV_RUNTIME = Path(__file__).resolve().parents[2] / "build" / "runtime"
@@ -60,8 +61,8 @@ def locate() -> Runtime:
         if rt.is_valid():
             return rt
     raise RuntimeMissing(
-        "No se encontró el motor nxapi (Node). "
-        + ("Reinstala la app." if getattr(sys, "frozen", False) else "Corre build/fetch-runtime.ps1.")
+        tr("No se encontró el motor nxapi (Node). ")
+        + (tr("Reinstala la app.") if getattr(sys, "frozen", False) else tr("Corre build/fetch-runtime.ps1."))
     )
 
 

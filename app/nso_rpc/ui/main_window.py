@@ -8,6 +8,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..config import Config
+from ..i18n import tr
 from ..nxapi import Friend, NxapiClient
 from ..presence import PresenceSupervisor
 from ..presence_state import State
@@ -32,11 +33,11 @@ def discord_running() -> bool:
 
 def state_text(state: State, attempt: int, error: str | None) -> str:
     return {
-        State.CONNECTED: "Conectado",
-        State.CONNECTING: "Conectando…" if attempt <= 1 else f"Conectando… (intento {attempt})",
-        State.RETRYING: f"Reintentando (intento {attempt + 1})",
-        State.STOPPED: "Detenido",
-        State.ERROR: f"Error: {error}",
+        State.CONNECTED: tr("Conectado"),
+        State.CONNECTING: tr("Conectando…") if attempt <= 1 else tr("Conectando… (intento {n})", n=attempt),
+        State.RETRYING: tr("Reintentando (intento {n})", n=attempt + 1),
+        State.STOPPED: tr("Detenido"),
+        State.ERROR: tr("Error: {error}", error=error),
     }[state]
 
 
@@ -64,7 +65,7 @@ class MainWindow(QMainWindow):
         self.detail = QLabel()
         self.detail.setObjectName("muted")
         self.detail.setWordWrap(True)
-        self.discord_warn = QLabel("⚠ No detecto Discord de escritorio abierto: ábrelo para que se vea la actividad.")
+        self.discord_warn = QLabel(tr("⚠ No detecto Discord de escritorio abierto: ábrelo para que se vea la actividad."))
         self.discord_warn.setObjectName("warn")
         self.discord_warn.setWordWrap(True)
         self.discord_warn.hide()
@@ -102,10 +103,10 @@ class MainWindow(QMainWindow):
         supervisor.connected.connect(self.friends.reload)
 
         self.tabs = QTabWidget()
-        self.tabs.addTab(self._padded(self.friends), "Amigos")
-        self.tabs.addTab(self._padded(self.settings), "Configuración")
-        self.tabs.addTab(self._padded(self.log), "Registro")
-        self.tabs.addTab(self._padded(self._help_page(bot_label)), "Ayuda")
+        self.tabs.addTab(self._padded(self.friends), tr("Amigos"))
+        self.tabs.addTab(self._padded(self.settings), tr("Configuración"))
+        self.tabs.addTab(self._padded(self.log), tr("Registro"))
+        self.tabs.addTab(self._padded(self._help_page(bot_label)), tr("Ayuda"))
 
         central = QWidget()
         central.setObjectName("page")
@@ -133,19 +134,19 @@ class MainWindow(QMainWindow):
     def _help_page(self, bot_label: str | None) -> QWidget:
         page = QWidget()
         text = QLabel(
-            "<p><b>Cómo funciona.</b> Nintendo no deja leer tu propia actividad, solo la de tus amigos. "
+            tr("<p><b>Cómo funciona.</b> Nintendo no deja leer tu propia actividad, solo la de tus amigos. "
             "Por eso una <b>cuenta-bot</b> (una cuenta Nintendo desechable) te tiene como amigo y "
             "“mira” lo que juegas; esta app lo publica en tu Discord.</p>"
             "<p><b>Si no aparece nada en Discord:</b> Discord de escritorio abierto · tu cuenta principal "
             "jugando y en línea · privacidad de la principal en “Todos los amigos” · bot y principal "
             "son amigos aceptados.</p>"
             "<p><b>Seguridad:</b> nunca inicies sesión aquí con tu cuenta principal; el riesgo lo absorbe "
-            "la bot.</p>"
-            + (f"<p>Cuenta-bot actual: <b>{bot_label}</b></p>" if bot_label else "")
+            "la bot.</p>")
+            + (tr("<p>Cuenta-bot actual: <b>{name}</b></p>", name=bot_label) if bot_label else "")
         )
         text.setWordWrap(True)
         text.setTextFormat(Qt.TextFormat.RichText)
-        wizard = QPushButton("Abrir el tutorial")
+        wizard = QPushButton(tr("Abrir el tutorial"))
         wizard.clicked.connect(self.open_wizard.emit)
         l = QVBoxLayout(page)
         l.addWidget(text)
@@ -164,14 +165,14 @@ class MainWindow(QMainWindow):
         self.dot.setPixmap(theme.dot(theme.STATE_COLORS[m.state], 14))
         self.state_label.setText(state_text(m.state, m.attempt, m.error))
         running = m.state in (State.CONNECTING, State.CONNECTED, State.RETRYING)
-        self.toggle.setText("Detener" if running else "Iniciar")
+        self.toggle.setText(tr("Detener") if running else tr("Iniciar"))
 
         friend = self.friends.friend(self.config.friend_nsaid)
         name = (friend.name if friend else None) or self.config.friend_name
         if not self.config.friend_nsaid:
-            self.detail.setText("Todavía no eliges qué cuenta mostrar: hazlo en la pestaña Amigos.")
+            self.detail.setText(tr("Todavía no eliges qué cuenta mostrar: hazlo en la pestaña Amigos."))
         else:
-            parts = [f"Mostrando a <b>{name or self.config.friend_nsaid}</b>"]
+            parts = [tr("Mostrando a <b>{name}</b>", name=name or self.config.friend_nsaid)]
             if friend:
                 parts.append(friend.status_text)
             self.detail.setText(" · ".join(parts))

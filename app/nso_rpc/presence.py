@@ -4,6 +4,7 @@ from PySide6.QtCore import QElapsedTimer, QObject, QProcess, QProcessEnvironment
 
 from . import winjob
 from .config import Config
+from .i18n import tr
 from .nxapi import NxapiClient
 from .presence_state import PresenceMachine, State
 from .runtime import env as runtime_env
@@ -34,10 +35,10 @@ class PresenceSupervisor(QObject):
     def start(self) -> None:
         if self.client is None:
             self.machine.start()
-            self.machine.fatal("No se encontró el motor nxapi.")
+            self.machine.fatal(tr("No se encontró el motor nxapi."))
         elif not self.config.friend_nsaid:
             self.machine.start()
-            self.machine.fatal("Elige primero qué cuenta mostrar (pestaña Amigos).")
+            self.machine.fatal(tr("Elige primero qué cuenta mostrar (pestaña Amigos)."))
         elif self.machine.start() == "spawn":
             self._spawn()
         self._emit()
@@ -94,17 +95,17 @@ class PresenceSupervisor(QObject):
         if self.machine.state is State.RETRYING:
             secs = int(self._age.elapsed() / 1000)
             if was is State.CONNECTED:
-                self.log_line.emit(f"Se cayó tras {secs}s (había conectado). Reintentando…")
+                self.log_line.emit(tr("Se cayó tras {secs}s (había conectado). Reintentando…", secs=secs))
                 self.dropped.emit()
             else:
-                self.log_line.emit(f"Falló tras {secs}s sin conectar (¿servidor de tokens caído?). Reintentando…")
+                self.log_line.emit(tr("Falló tras {secs}s sin conectar (¿servidor de tokens caído?). Reintentando…", secs=secs))
             self._down.start()
         self._emit()
 
     def _on_error(self, proc: QProcess, err) -> None:
         if proc is self.proc and err == QProcess.ProcessError.FailedToStart:
             self.proc = None
-            self.machine.fatal("No se pudo iniciar nxapi: " + proc.errorString())
+            self.machine.fatal(tr("No se pudo iniciar nxapi: {error}", error=proc.errorString()))
             self._timer.stop()
             self._emit()
 
@@ -112,7 +113,7 @@ class PresenceSupervisor(QObject):
         if self.machine.state is State.CONNECTING:
             self.machine.tick(self._age.elapsed() / 1000)
             if self.machine.state is State.CONNECTED:
-                self.log_line.emit("CONECTADO: la presencia está activa en Discord.")
+                self.log_line.emit(tr("CONECTADO: la presencia está activa en Discord."))
                 self.connected.emit()
         elif self.machine.state is State.RETRYING:
             self.machine.tick_retry(self._down.elapsed() / 1000)

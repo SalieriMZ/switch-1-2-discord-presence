@@ -7,7 +7,7 @@ from PySide6.QtCore import QThreadPool
 from PySide6.QtNetwork import QLocalServer, QLocalSocket
 from PySide6.QtWidgets import QApplication, QMessageBox
 
-from . import runtime
+from . import i18n, runtime
 from .config import Config
 from .nxapi import NxapiClient
 from .onboarding import wizard_start
@@ -37,6 +37,7 @@ class App:
     def __init__(self, qapp: QApplication, minimized: bool):
         self.qapp = qapp
         self.config = Config.load()
+        i18n.set_language(self.config.language)  # antes de crear cualquier texto de la UI
         try:
             self.client: NxapiClient | None = NxapiClient(runtime.locate())
         except runtime.RuntimeMissing as e:
@@ -74,7 +75,7 @@ class App:
 
     def _on_whoami(self, bot: dict | None) -> None:
         if bot:
-            self.supervisor.log_line.emit(f"Cuenta-bot: {bot.get('nickname')} ({bot.get('id')})")
+            self.supervisor.log_line.emit(i18n.tr("Cuenta-bot: {name} ({id})", name=bot.get("nickname"), id=bot.get("id")))
         if not self._pending_route:
             return
         self._pending_route = False
@@ -83,7 +84,7 @@ class App:
             # Ya estaba todo listo (p. ej. usó la versión de consola o reinstaló): sin tutorial.
             self.config.tutorial_done = True
             self.config.save()
-            self.supervisor.log_line.emit("Cuenta-bot y cuenta elegida ya configuradas: se omite el tutorial.")
+            self.supervisor.log_line.emit(i18n.tr("Cuenta-bot y cuenta elegida ya configuradas: se omite el tutorial."))
             self._open_main()
         else:
             self.show_wizard(start)

@@ -25,6 +25,7 @@ class Config:
     update_interval: int = 120
     show_play_time: bool = False
     show_inactive: bool = False
+    language: str = "auto"  # "auto" (idioma de Windows), "es" o "en"
 
     def __post_init__(self):
         # Menos de 30 s arriesga rate-limit en el servidor de tokens.
