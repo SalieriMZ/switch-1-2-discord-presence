@@ -1,0 +1,8 @@
+{
+  "name": "nso-rpc-runtime",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "nxapi": "next"
+  }
+}
