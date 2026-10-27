@@ -59,6 +59,23 @@ This creates `dist\NSO-Discord-RPC\`. The first time, it downloads a portable No
 - `compilar.bat -Zip` also creates the `.zip` to share.
 - `compilar.bat -Clean` rebuilds from scratch.
 
+### CI and releases
+
+GitHub Actions ([build.yml](.github/workflows/build.yml)) runs the tests and builds the `.zip` on every push
+to `main` and on pull requests. The `.zip` is attached to the run as an artifact.
+
+To publish a release:
+
+1. Bump `__version__` in [app/nso_rpc/\_\_init\_\_.py](app/nso_rpc/__init__.py).
+2. Push a tag with the same version:
+
+   ```bash
+   git tag v0.2.0
+   git push origin v0.2.0
+   ```
+
+The workflow creates the GitHub release with the `.zip`. It fails if the tag does not match `__version__`.
+
 ### Translations
 
 UI strings are written in Spanish and wrapped in `tr()`. The English text lives in the `EN` dictionary in

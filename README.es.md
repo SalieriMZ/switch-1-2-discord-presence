@@ -57,6 +57,23 @@ Genera `dist\NSO-Discord-RPC\`. La primera vez descarga Node portable y `nxapi@n
 - `compilar.bat -Zip` también crea el `.zip` para compartir.
 - `compilar.bat -Clean` recompila desde cero.
 
+### CI y releases
+
+GitHub Actions ([build.yml](.github/workflows/build.yml)) corre los tests y compila el `.zip` en cada push a
+`main` y en cada pull request. El `.zip` queda como artefacto de la ejecución.
+
+Para publicar una versión:
+
+1. Sube `__version__` en [app/nso_rpc/\_\_init\_\_.py](app/nso_rpc/__init__.py).
+2. Sube un tag con la misma versión:
+
+   ```bash
+   git tag v0.2.0
+   git push origin v0.2.0
+   ```
+
+El workflow crea el release en GitHub con el `.zip`. Falla si el tag no coincide con `__version__`.
+
 El diseño está en [docs/design.md](docs/design.md).
 
 ## Licencia
