@@ -1,0 +1,20 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+build/runtime/
+build/work/
+dist/
+*.spec
+.superpowers/
+build/work-build.log
+
+# Python / editores
+*.egg-info/
+.idea/
+.vscode/
+*.log
+
+# runtime local de Node
+runtime/node_modules/
+runtime/package-lock.json

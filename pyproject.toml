@@ -1,0 +1,14 @@
+[project]
+name = "nso-rpc"
+version = "0.1.0"
+description = "Nintendo Switch Online -> Discord Rich Presence (Windows tray app, built on nxapi)"
+license = "AGPL-3.0-or-later"
+requires-python = ">=3.12"
+dependencies = ["PySide6>=6.8"]
+
+[project.optional-dependencies]
+dev = ["pytest", "pyinstaller"]
+
+[tool.pytest.ini_options]
+pythonpath = ["app"]
+testpaths = ["tests"]
