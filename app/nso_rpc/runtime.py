@@ -37,8 +37,12 @@ class Runtime:
     def bridge(self) -> Path:
         return self.root / "bridge.mjs"
 
+    @property
+    def discord_fix(self) -> Path:
+        return self.root / "discord-fix.mjs"
+
     def is_valid(self) -> bool:
-        return self.node.is_file() and self.nxapi_bin.is_file() and self.bridge.is_file()
+        return all(p.is_file() for p in (self.node, self.nxapi_bin, self.bridge, self.discord_fix))
 
 
 def cleanup_legacy_cache() -> None:
@@ -49,7 +53,7 @@ def cleanup_legacy_cache() -> None:
 def locate() -> Runtime:
     override = os.environ.get("NSO_RPC_RUNTIME")
     if override:
-        candidates = [Path(override)]
+        candidates = [Path(override).resolve()]
     elif getattr(sys, "frozen", False):
         # Carpeta de la app: NSO-Discord-RPC.exe + runtime/ al lado (sin extraer nada al arrancar).
         candidates = [Path(sys.executable).resolve().parent / "runtime"]

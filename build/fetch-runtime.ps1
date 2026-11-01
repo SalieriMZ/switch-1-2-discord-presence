@@ -10,7 +10,13 @@ $root = Split-Path -Parent $PSScriptRoot
 $out = Join-Path $PSScriptRoot 'runtime'
 $dl = Join-Path $PSScriptRoot 'work\download'
 
+# Los archivos propios se actualizan siempre, también sobre un runtime ya armado.
+function Copy-Own {
+    Copy-Item (Join-Path $root 'runtime\package.json'), (Join-Path $root 'runtime\bridge.mjs'), (Join-Path $root 'runtime\discord-fix.mjs') $out
+}
+
 if ((Test-Path $out) -and -not $Force) {
+    Copy-Own
     Write-Host "build/runtime ya existe (usa -Force para rehacerlo)."
     exit 0
 }
@@ -36,7 +42,7 @@ Expand-Archive $zip $extract
 $nodeDir = Get-ChildItem $extract -Directory | Select-Object -First 1
 Move-Item $nodeDir.FullName (Join-Path $out 'node')
 
-Copy-Item (Join-Path $root 'runtime\package.json'), (Join-Path $root 'runtime\bridge.mjs') $out
+Copy-Own
 
 $node = Join-Path $out 'node\node.exe'
 $npm = Join-Path $out 'node\node_modules\npm\bin\npm-cli.js'

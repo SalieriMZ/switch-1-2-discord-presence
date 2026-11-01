@@ -13,6 +13,7 @@ def _fake_runtime(root):
     (root / "node_modules" / "nxapi" / "bin").mkdir(parents=True)
     (root / "node_modules" / "nxapi" / "bin" / "nxapi.js").write_text("")
     (root / "bridge.mjs").write_text("")
+    (root / "discord-fix.mjs").write_text("")
     return root
 
 

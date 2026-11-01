@@ -149,7 +149,7 @@ class NxapiClient:
             raise NxapiError(tr("npm install falló (código {code}).", code=proc.returncode))
 
     def presence_args(self, nsaid: str, cfg: Config) -> list[str]:
-        args = [str(self.rt.node), str(self.rt.nxapi_bin), "nso", "presence",
+        args = [str(self.rt.node), "--import", self.rt.discord_fix.as_uri(), str(self.rt.nxapi_bin), "nso", "presence",
                 "--friend-nsaid", nsaid, "--update-interval", str(cfg.update_interval)]
         if cfg.show_play_time:
             args.append("--show-play-time")

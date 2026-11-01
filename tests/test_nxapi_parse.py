@@ -76,8 +76,8 @@ def test_presence_args_flags(tmp_path):
     rt = Runtime(tmp_path)
     client = NxapiClient(rt)
     args = client.presence_args("1a6e258084006b16", Config(update_interval=90, show_play_time=True))
-    assert args[:2] == [str(rt.node), str(rt.nxapi_bin)]
-    assert args[2:] == [
+    assert args[:4] == [str(rt.node), "--import", rt.discord_fix.as_uri(), str(rt.nxapi_bin)]
+    assert args[4:] == [
         "nso", "presence", "--friend-nsaid", "1a6e258084006b16", "--update-interval", "90",
         "--show-play-time",
     ]

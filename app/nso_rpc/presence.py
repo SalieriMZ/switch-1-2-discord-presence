@@ -57,7 +57,7 @@ class PresenceSupervisor(QObject):
 
     def _spawn(self) -> None:
         args = self.client.presence_args(self.config.friend_nsaid, self.config)
-        self.log_line.emit("> nxapi " + " ".join(args[2:]))
+        self.log_line.emit("> nxapi " + " ".join(args[args.index(str(self.client.rt.nxapi_bin)) + 1:]))
         proc = QProcess(self)
         env = QProcessEnvironment.systemEnvironment()
         for k, v in runtime_env(self.client.rt).items():
