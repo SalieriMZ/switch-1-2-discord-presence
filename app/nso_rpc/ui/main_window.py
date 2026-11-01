@@ -147,7 +147,7 @@ class MainWindow(QMainWindow):
         text.setWordWrap(True)
         text.setTextFormat(Qt.TextFormat.RichText)
         wizard = QPushButton(tr("Abrir el tutorial"))
-        wizard.clicked.connect(self.open_wizard.emit)
+        wizard.clicked.connect(lambda: self.open_wizard.emit())
         l = QVBoxLayout(page)
         l.addWidget(text)
         l.addWidget(wizard, 0, Qt.AlignmentFlag.AlignLeft)

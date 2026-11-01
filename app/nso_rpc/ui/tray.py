@@ -22,9 +22,9 @@ class Tray(QObject):
 
         self.menu = QMenu()
         self.status_action = QAction(tr("Detenido"), self.menu, enabled=False)
-        self.open_action = QAction(tr("Abrir"), self.menu, triggered=self.open_requested.emit)
+        self.open_action = QAction(tr("Abrir"), self.menu, triggered=lambda: self.open_requested.emit())
         self.toggle_action = QAction(tr("Iniciar"), self.menu, triggered=self._toggle)
-        self.quit_action = QAction(tr("Salir"), self.menu, triggered=self.quit_requested.emit)
+        self.quit_action = QAction(tr("Salir"), self.menu, triggered=lambda: self.quit_requested.emit())
         for a in (self.status_action, None, self.open_action, self.toggle_action, None, self.quit_action):
             self.menu.addSeparator() if a is None else self.menu.addAction(a)
         self.icon.setContextMenu(self.menu)
