@@ -3,11 +3,11 @@
 import argparse
 import sys
 
-from PySide6.QtCore import QThreadPool
+from PySide6.QtCore import QThread, QThreadPool
 from PySide6.QtNetwork import QLocalServer, QLocalSocket
 from PySide6.QtWidgets import QApplication, QMessageBox
 
-from . import i18n, runtime
+from . import i18n, runtime, single_instance
 from .config import Config
 from .nxapi import NxapiClient
 from .onboarding import wizard_start
@@ -20,17 +20,21 @@ from .ui.wizard import Wizard
 from .ui.workers import run_async
 
 SERVER_NAME = "nso-discord-rpc"
+SIGNAL_ATTEMPTS = 15
+SIGNAL_RETRY_MS = 300
 
 
-def _signal_existing_instance() -> bool:
+def _signal_existing_instance() -> None:
+    """Le pide a la otra instancia que se muestre; puede estar arrancando, así que espera a que escuche."""
     sock = QLocalSocket()
-    sock.connectToServer(SERVER_NAME)
-    if sock.waitForConnected(500):
-        sock.write(b"show")
-        sock.waitForBytesWritten(500)
-        sock.disconnectFromServer()
-        return True
-    return False
+    for _ in range(SIGNAL_ATTEMPTS):
+        sock.connectToServer(SERVER_NAME)
+        if sock.waitForConnected(500):
+            sock.write(b"show")
+            sock.waitForBytesWritten(500)
+            sock.disconnectFromServer()
+            return
+        QThread.msleep(SIGNAL_RETRY_MS)
 
 
 class App:
@@ -143,7 +147,8 @@ def main(argv: list[str] | None = None) -> int:
     qapp.setWindowIcon(theme.app_icon())
     qapp.setStyleSheet(theme.QSS)
 
-    if _signal_existing_instance():
+    if not single_instance.acquire():
+        _signal_existing_instance()
         return 0
 
     app = App(qapp, args.minimized)
